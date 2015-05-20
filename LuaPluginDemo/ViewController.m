@@ -48,9 +48,10 @@
     if ([PluginManager pluginIsDownload:plugin]) {
          wax_start_plugin(pluginPath, "init.lua", nil);
     }else {
-        [PluginManager downloadPluginWithURL:@"http://goldbasket.sinaapp.com" pluginName:plugin success:^(NSString *plugin) {
+        [PluginManager downloadPluginWithURL:@"http://goldbasket.sinaapp.com" pluginName:plugin success:^(NSString *pluginPath) {
             UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
             cell.backgroundColor = [UIColor greenColor];
+            wax_start_plugin((char *)[pluginPath UTF8String], "init.lua", nil);
         } failure:^(NSError *error) {
             
         }];

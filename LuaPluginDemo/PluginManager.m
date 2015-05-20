@@ -62,6 +62,7 @@
     }
     [zip UnzipFileTo:[PluginManager pluginRootPath] overWrite:YES];
     [zip UnzipCloseFile];
+    [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 }
 
 + (void)downloadPluginWithURL:(NSString *)url pluginName:(NSString *)plugin success:(void(^)(NSString *))successBlock failure:(void(^)(NSError *))failureBlock
@@ -72,11 +73,11 @@
     AFHTTPRequestOperation *operation1 = [[AFHTTPRequestOperation alloc] initWithRequest:request];
     [operation1 setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSData *data = (NSData *)responseObject;
-        [data writeToFile:[[[self class] pluginRootPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.zip", plugin]] atomically:YES];
-        [[self class] handlePluginWithPath:[[[self class] pluginRootPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.zip", plugin]]withPassword:nil];
+        [data writeToFile:[[[self class] pluginRootPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"temp.zip"]] atomically:YES];
+        [[self class] handlePluginWithPath:[[[self class] pluginRootPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"temp.zip"]]withPassword:nil];
         dispatch_async(dispatch_get_main_queue(), ^{
-            successBlock(plugin);
             [MBProgressHUD hideAllHUDsForView:keyWindow animated:YES];
+            successBlock([[self class] pluginPathWithPluginName:plugin]);
         });
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
